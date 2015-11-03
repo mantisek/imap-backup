@@ -34,7 +34,7 @@ describe Imap::Backup::Configuration::Setup do
       allow(Imap::Backup).to receive(:setup_logging)
       @input, @output = prepare_highline
       allow(@input).to receive(:eof?).and_return(false)
-      allow(@input).to receive(:gets).and_return("exit\n")
+      setup_input "exit\n"
       allow(subject).to receive(:system)
     end
 
@@ -100,7 +100,7 @@ describe Imap::Backup::Configuration::Setup do
       let(:account) { double('Imap::Backup::Configuration::Account', :run => nil) }
 
       before do
-        allow(@input).to receive(:gets).and_return("add\n", "exit\n")
+        setup_input "add\n", "exit\n"
         allow(Imap::Backup::Configuration::Asker).to receive(:email).with(no_args).and_return('new@example.com')
         allow(Imap::Backup::Configuration::Account).to receive(:new).with(store, blank_account, anything).and_return(account)
 
@@ -119,7 +119,7 @@ describe Imap::Backup::Configuration::Setup do
     context 'logging' do
       context 'when debug logging is disabled' do
         before do
-          allow(@input).to receive(:gets).and_return("start\n", "exit\n")
+          setup_input "start\n", "exit\n"
           subject.run
         end
 
@@ -142,7 +142,7 @@ describe Imap::Backup::Configuration::Setup do
         let(:debug) { true }
 
         before do
-          allow(@input).to receive(:gets).and_return("stop\n", "exit\n")
+          setup_input "stop\n", "exit\n"
           subject.run
         end
 
@@ -152,7 +152,7 @@ describe Imap::Backup::Configuration::Setup do
 
         context 'when selected' do
           before do
-            allow(@input).to receive(:gets).and_return("stop\n", "exit\n")
+            setup_input "stop\n", "exit\n"
           end
 
           it 'unsets the debug flag' do
@@ -168,7 +168,8 @@ describe Imap::Backup::Configuration::Setup do
 
     context "when 'save' is selected" do
       before do
-        allow(@input).to receive(:gets).and_return("save\n")
+        setup_input "save\n"
+
         subject.run
       end
 
@@ -183,7 +184,7 @@ describe Imap::Backup::Configuration::Setup do
 
     context "when 'exit without saving' is selected" do
       before do
-        allow(@input).to receive(:gets).and_return("exit\n")
+        setup_input "exit\n"
 
         subject.run
       end
