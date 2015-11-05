@@ -17,6 +17,7 @@ module Imap::Backup
     def initialize(connection, name)
       @connection = connection
       @name = name
+      @uid_validity = nil
     end
 
     def folder
@@ -24,21 +25,34 @@ module Imap::Backup
     end
 
     def uids
-      imap.examine(name)
-      imap.uid_search(['ALL']).sort
+      examine
+      imap.uid_search(['ALL']).sort.map(&:to_s)
     rescue Net::IMAP::NoResponseError => e
       Imap::Backup.logger.warn "Folder '#{name}' does not exist"
       []
     end
 
     def fetch(uid)
-      imap.examine(name)
+      examine
       message = imap.uid_fetch([uid.to_i], REQUESTED_ATTRIBUTES)[0][1]
       message['RFC822'].force_encoding('utf-8') if RUBY_VERSION > '1.9'
       message
     rescue Net::IMAP::NoResponseError => e
       Imap::Backup.logger.warn "Folder '#{name}' does not exist"
       nil
+    end
+
+    def uid_validity
+      return @uid_validity unless @uid_validity.nil?
+      examine
+      @uid_validity
+    end
+
+    private
+
+    def examine
+      response = imap.examine(name)
+      @uid_validity = imap.responses['UIDVALIDITY'][-1]
     end
   end
 end

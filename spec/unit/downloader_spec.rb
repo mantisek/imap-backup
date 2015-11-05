@@ -6,7 +6,14 @@ describe Imap::Backup::Downloader do
     let(:message) { {'RFC822' => 'blah'} }
     let(:folder) { double('Imap::Backup::Account::Folder', :fetch => message, :name => 'folder') }
     let(:folder_uids) { ['111', '222', '333'] }
-    let(:serializer) { double('Imap::Backup::Serializer', :save => nil) }
+    let(:serializer) do
+      double(
+        'Imap::Backup::Serializer',
+        :prepare => nil,
+        :exist?  => true,
+        :save    => nil,
+      )
+    end
     let(:serializer_uids) { ['222'] }
 
     subject { described_class.new(folder, serializer) }

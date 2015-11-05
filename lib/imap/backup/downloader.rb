@@ -1,14 +1,8 @@
 # encoding: utf-8
+require 'imap/backup/worker_base'
 
 module Imap::Backup
-  class Downloader
-    attr_reader :folder
-    attr_reader :serializer
-
-    def initialize(folder, serializer)
-      @folder, @serializer = folder, serializer
-    end
-
+  class Downloader < WorkerBase
     def run
       uids = folder.uids - serializer.uids
       Imap::Backup.logger.debug "[#{folder.name}] #{uids.count} new messages"

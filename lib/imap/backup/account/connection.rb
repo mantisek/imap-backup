@@ -12,6 +12,7 @@ module Imap::Backup
       @local_path = options[:local_path]
       @backup_folders = options[:folders]
       @server = options[:server]
+      @server_options = options[:server_options]
       @folders = nil
     end
 
@@ -28,7 +29,7 @@ module Imap::Backup
     def status
       backup_folders.map do |folder|
         f = Account::Folder.new(self, folder[:name])
-        s = Serializer::Directory.new(local_path, folder[:name])
+        s = Serializer::Mbox.new(local_path, folder[:name])
         {:name => folder[:name], :local => s.uids, :remote => f.uids}
       end
     end
@@ -39,6 +40,7 @@ module Imap::Backup
       imap
       each_folder do |folder, serializer|
         Imap::Backup.logger.debug "[#{folder.name}] running backup"
+        serializer.set_uid_validity(folder.uid_validity)
         Downloader.new(folder, serializer).run
       end
     end
@@ -92,7 +94,7 @@ module Imap::Backup
     end
 
     def provider_options
-      provider.options
+      @server_options || provider.options
     end
 
     def provider_root

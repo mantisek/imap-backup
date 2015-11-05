@@ -12,7 +12,22 @@ describe Email::Mboxrd::Message do
 
   subject { described_class.new(message_body) }
 
-  context '#to_s' do
+  describe '.from_serialized' do
+    let(:serialized_message) { "From foo@a.com\n#{imap_message}" }
+    let(:imap_message) { "Delivered-To: me@example.com\nFrom Me\n" }
+
+    before { @result = described_class.from_serialized(serialized_message) }
+
+    it 'returns the message' do
+      expect(@result).to be_a(described_class)
+    end
+
+    it 'removes one level of > before From' do
+      expect(@result.supplied_body).to eq(imap_message)
+    end
+  end
+
+  context '#to_serialized' do
     let(:mail) { double('Mail', :from =>[from], :date => date) }
 
     before do
@@ -20,21 +35,31 @@ describe Email::Mboxrd::Message do
     end
 
     it 'does not modify the message' do
-      subject.to_s
+      subject.to_serialized
 
       expect(message_body).to_not have_received(:force_encoding).with('binary')
     end
 
     it "adds a 'From ' line at the start" do
-      expect(subject.to_s).to start_with('From ' + from + ' ' + date.asctime + "\n")
+      expect(subject.to_serialized).to start_with('From ' + from + ' ' + date.asctime + "\n")
     end
 
-    it "replaces existing 'From ' with '>From '" do
-      expect(subject.to_s).to include("\n>From at the beginning")
+    context "with 'From ' at the beginning of the message" do
+      let(:cloned_message_body) { "From at the beginning of the message\n" }
+
+      it "replaces existing 'From ' with '>From '" do
+        expect(subject.to_serialized).to include("\n>From at the beginning of the message")
+      end
+    end
+
+    context "with 'From ' at the beginning of another line" do
+      it "replaces existing 'From ' with '>From '" do
+        expect(subject.to_serialized).to include("\n>From at the beginning of the line")
+      end
     end
 
     it "appends > before '>+From '" do
-      expect(subject.to_s).to include("\n>>>From quoted")
+      expect(subject.to_serialized).to include("\n>>>From quoted")
     end
 
     context 'when date is missing' do

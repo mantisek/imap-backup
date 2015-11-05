@@ -9,6 +9,12 @@ $LOAD_PATH << File.expand_path('../lib', spec_path)
 support_glob = File.join(spec_path, 'support', '**', '*.rb')
 Dir[support_glob].each { |f| require f }
 
+require 'fakefs/spec_helpers'
+
+RSpec.configure do |config|
+  config.include FakeFS::SpecHelpers, fakefs: true
+end
+
 require 'simplecov'
 SimpleCov.start do
   add_filter '/spec/'

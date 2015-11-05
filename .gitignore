@@ -3,5 +3,5 @@
 Gemfile.lock
 coverage
 pkg
-.rbenv-version
-vendor
+/rims.yaml
+/tmp

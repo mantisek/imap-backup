@@ -11,7 +11,6 @@ module Imap::Backup
 
       def initialize(path, folder)
         @path, @folder = path, folder
-        Utils.check_permissions(@path, DIRECTORY_PERMISSIONS)
       end
     end
   end
