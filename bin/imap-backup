@@ -9,6 +9,7 @@ require 'imap/backup'
 KNOWN_COMMANDS = [
   {:name => 'setup',   :help => 'Create/edit the configuration file'},
   {:name => 'backup',  :help => 'Do the backup (default)'},
+  {:name => 'restore', :help => 'Restore emails to server'},
   {:name => 'folders', :help => 'List folders for all (or selected) accounts'},
   {:name => 'status',  :help => 'List count of non backed-up emails per folder'},
   {:name => 'help',    :help => 'Show usage'},
@@ -66,6 +67,10 @@ when 'backup'
   configuration.each_connection do |connection|
     connection.run_backup
   end
+when 'restore'
+  configuration.each_connection do |connection|
+    connection.restore
+  end
 when 'folders'
   configuration.each_connection do |connection|
     puts connection.username
@@ -81,8 +86,9 @@ when 'status'
     puts connection.username
     folders = connection.status
     folders.each do |f|
-      missing_locally = f[:remote] - f[:local]
-      puts "#{f[:name]}: #{missing_locally.size}"
+      missing_locally = (f[:remote] - f[:local]).size
+      missing_remotely = (f[:local] - f[:remote]).size
+      puts "#{f[:name]}: #{missing_locally} to download, #{missing_remotely} to restore"
     end
   end
 end

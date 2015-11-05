@@ -42,6 +42,11 @@ module Imap::Backup
       nil
     end
 
+    def append(message)
+      response = imap.append(folder, message.to_s, nil, message.date)
+      extract_uid(response)
+    end
+
     def uid_validity
       return @uid_validity unless @uid_validity.nil?
       examine
@@ -53,6 +58,11 @@ module Imap::Backup
     def examine
       response = imap.examine(name)
       @uid_validity = imap.responses['UIDVALIDITY'][-1]
+    end
+
+    def extract_uid(response)
+      @uid_validity, uid = response.data.code.data.split(' ').map(&:to_i)
+      uid
     end
   end
 end

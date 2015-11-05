@@ -25,6 +25,10 @@ module Email::Mboxrd
       'From ' + from + "\n" + mboxrd_body + "\n"
     end
 
+    def date
+      parsed.date
+    end
+
     private
 
     def parsed
@@ -48,10 +52,6 @@ module Email::Mboxrd
 
     def asctime
       date ? date.asctime : ''
-    end
-
-    def date
-      parsed.date
     end
   end
 end

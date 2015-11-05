@@ -6,11 +6,12 @@ describe Imap::Backup::Account::Folder do
   let(:responses) { {'UIDVALIDITY' => [uid_validity]} }
   let(:uid_validity) { 999 }
   let(:connection) { double('Imap::Backup::Account::Connection', :imap => imap) }
-  let(:missing_mailbox_data) { double('Data', :text => 'Unknown Mailbox: my_folder') }
+  let(:missing_mailbox_data) { double('Data', :text => "Unknown Mailbox: #{folder_name}") }
   let(:missing_mailbox_response) { double('Response', :data => missing_mailbox_data) }
   let(:missing_mailbox_error) { Net::IMAP::NoResponseError.new(missing_mailbox_response) }
+  let(:folder_name) { 'my_folder' }
 
-  subject { described_class.new(connection, 'my_folder') }
+  subject { described_class.new(connection, folder_name) }
 
   shared_examples 'uid_validity' do
     it 'records uid_validity' do
@@ -72,6 +73,35 @@ describe Imap::Backup::Account::Folder do
 
         expect(message_body).to have_received(:force_encoding).with('utf-8')
       end
+    end
+  end
+
+  describe '#append' do
+    let(:message) do
+      double(Email::Mboxrd::Message, to_s: message_body, date: message_date)
+    end
+    let(:message_body) { 'the message' }
+    let(:message_date) { 'the date' }
+    let(:response) { double('Response', data: data) }
+    let(:data) { double('Data', code: code) }
+    let(:code) { double('Code', data: ids.join(' ')) }
+    let(:ids) { [123, uid] }
+    let(:uid) { 456 }
+
+    before { allow(imap).to receive(:append).and_return(response) }
+
+    before { @result = subject.append(message) }
+
+    it 'appends the message' do
+      expect(imap).to have_received(:append).with(folder_name, message_body, nil, message_date)
+    end
+
+    it 'returns the new uid' do
+      expect(@result).to eq(uid)
+    end
+
+    context 'uid_validity' do
+      include_examples 'uid_validity'
     end
   end
 end

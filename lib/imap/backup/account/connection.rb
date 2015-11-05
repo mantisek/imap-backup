@@ -45,6 +45,16 @@ module Imap::Backup
       end
     end
 
+    def restore
+      each_folder do |folder, serializer|
+        new_name = serializer.set_uid_validity(folder.uid_validity)
+        if new_name
+          folder = Account::Folder.new(self, new_name)
+        end
+        Uploader.new(folder, serializer).run
+      end
+    end
+
     def disconnect
       imap.disconnect
     end
