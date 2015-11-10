@@ -280,7 +280,7 @@ describe Imap::Backup::Serializer::Mbox, fakefs: true do
 
       context "when the value uid_validity changes" do
         let(:new_uid_validity) { 999 }
-        let(:new_folder_name) { imap_folder + '.1' }
+        let(:new_folder_name) { "#{imap_folder}.#{uid_validity}" }
         let(:renamed_imap_pathname) { File.join(base_path, new_folder_name + '.imap') }
         let(:renamed_mbox_pathname) { File.join(base_path, new_folder_name + '.mbox') }
 
@@ -305,11 +305,11 @@ describe Imap::Backup::Serializer::Mbox, fakefs: true do
         end
 
         context 'when the rename causes a clash' do
-          let(:new_folder_name) { imap_folder + '.2' }
-          let(:first_attempted_imap_name) { File.join(base_path, imap_folder + '.1.imap') }
-          let(:first_attempted_mbox_name) { File.join(base_path, imap_folder + '.1.mbox') }
-          let(:renamed_imap_pathname) { File.join(base_path, imap_folder + '.2.imap') }
-          let(:renamed_mbox_pathname) { File.join(base_path, imap_folder + '.2.mbox') }
+          let(:new_folder_name) { imap_folder + ".#{uid_validity}.1" }
+          let(:first_attempted_imap_name) { File.join(base_path, imap_folder + ".#{uid_validity}.imap") }
+          let(:first_attempted_mbox_name) { File.join(base_path, imap_folder + ".#{uid_validity}.mbox") }
+          let(:renamed_imap_pathname) { File.join(base_path, new_folder_name + ".imap") }
+          let(:renamed_mbox_pathname) { File.join(base_path, new_folder_name + ".mbox") }
           let!(:create_files) do
             File.open(first_attempted_imap_name, 'w') { |f| f.write '' }
             File.open(first_attempted_mbox_name, 'w') { |f| f.write '' }

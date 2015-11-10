@@ -13,12 +13,6 @@ describe Imap::Backup::Account::Folder do
 
   subject { described_class.new(connection, folder_name) }
 
-  shared_examples 'uid_validity' do
-    it 'records uid_validity' do
-      expect(subject.uid_validity).to eq(uid_validity)
-    end
-  end
-
   context '#uids' do
     let(:uids) { %w(5678 123) }
 
@@ -28,10 +22,8 @@ describe Imap::Backup::Account::Folder do
       expect(subject.uids).to eq(uids.reverse)
     end
 
-    context 'uid_validity' do
-      include_examples 'uid_validity' do
-        before { subject.uids }
-      end
+    it 'records uid_validity' do
+      expect(subject.uid_validity).to eq(uid_validity)
     end
 
     context 'with missing mailboxes' do
@@ -53,10 +45,9 @@ describe Imap::Backup::Account::Folder do
       expect(subject.fetch(123)).to eq(message)
     end
 
-    context 'uid_validity' do
-      include_examples 'uid_validity' do
-        before { subject.fetch(123) }
-      end
+    it 'records uid_validity' do
+      subject.fetch(123)
+      expect(subject.uid_validity).to eq(uid_validity)
     end
 
     context "if the mailbox doesn't exist" do
@@ -85,7 +76,7 @@ describe Imap::Backup::Account::Folder do
     let(:response) { double('Response', data: data) }
     let(:data) { double('Data', code: code) }
     let(:code) { double('Code', data: ids.join(' ')) }
-    let(:ids) { [123, uid] }
+    let(:ids) { [uid_validity, uid] }
     let(:uid) { 456 }
 
     before { allow(imap).to receive(:append).and_return(response) }

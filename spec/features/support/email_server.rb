@@ -31,6 +31,12 @@ Subject: #{subject}
     result = imap.rename(from, to)
   end
 
+  def server_folders
+    root_info = imap.list("", "")[0]
+    root = root_info.name
+    imap.list(root, "*")
+  end
+
   def examine(folder)
     imap.examine(folder)
   end

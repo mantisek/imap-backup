@@ -11,8 +11,7 @@ module Imap::Backup
       {:name => backup_folder}
     end
 
-    let(:imap) { double('Net::IMAP', :login => nil, :list => imap_folders, :disconnect => nil) }
-    let(:imap_folders) { [] }
+    let(:imap) { double('Net::IMAP', :login => nil, :disconnect => nil) }
     let(:options) do
       {
         :username => username,
@@ -24,9 +23,16 @@ module Imap::Backup
     let(:local_path) { 'local_path' }
     let(:backup_folders) { [self.class.folder_config] }
     let(:username) { 'username@gmail.com' }
+    let(:root) { double("root", name: root_name) }
+    let(:root_name) { "foo" }
+    let(:imap_folders) { [] }
 
     before do
       allow(Net::IMAP).to receive(:new).and_return(imap)
+      allow(imap).to receive(:list).
+        with("", "") { [root] }
+      allow(imap).to receive(:list).
+        with(root_name, "*") { imap_folders }
     end
 
     subject { described_class.new(options) }
@@ -65,8 +71,6 @@ module Imap::Backup
 
     context '#folders' do
       let(:imap_folders) { ['imap_folder'] }
-
-      before { allow(imap).to receive(:list).and_return(imap_folders) }
 
       it 'returns the list of folders' do
         expect(subject.folders).to eq(imap_folders)

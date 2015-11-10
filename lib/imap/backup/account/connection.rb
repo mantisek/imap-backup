@@ -13,17 +13,15 @@ module Imap::Backup
       @backup_folders = options[:folders]
       @server = options[:server]
       @server_options = options[:server_options]
-      @folders = nil
     end
 
     def folders
-      return @folders if @folders
       root = provider_root
-      @folders = imap.list(root, '*')
-      if @folders.nil?
+      folders = imap.list(root, '*')
+      if folders.nil?
         Imap::Backup.logger.warn "Unable to get folder list for account #{username}, (root '#{root}'"
       end
-      @folders
+      folders
     end
 
     def status
@@ -90,7 +88,9 @@ module Imap::Backup
     
     def backup_folders
       return @backup_folders if @backup_folders and @backup_folders.size > 0
-      (folders || []).map { |f| {:name => f.name} }
+      fs = folders
+      return [] if fs.nil?
+      fs.map { |f| {:name => f.name} }
     end
 
     def provider
@@ -107,8 +107,13 @@ module Imap::Backup
       @server_options || provider.options
     end
 
+    # 6.3.8. LIST Command
+    # An empty ("" string) mailbox name argument is a special request to
+    # return the hierarchy delimiter and the root name of the name given
+    # in the reference.
     def provider_root
-      provider.root
+      root_info = imap.list("", "")[0]
+      root_info.name
     end
   end
 end

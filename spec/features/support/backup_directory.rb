@@ -20,7 +20,7 @@ Subject: #{subject}
   def add_backup_uid(name, uid)
     imap = load_or_create_imap(name)
     imap[:uids] << uid
-    save_imap imap
+    save_imap name, imap
   end
 
   def backup_set_uid_validity(name, uid_validity)

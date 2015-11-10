@@ -1,8 +1,5 @@
 :server: 'localhost'
 :username: 'user@example.com'
 :password: 'password'
-:folders:
-  -
-    :name: 'stuff'
 :server_options:
   :port: 1360
