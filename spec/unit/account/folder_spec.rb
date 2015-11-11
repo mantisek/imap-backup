@@ -91,8 +91,8 @@ describe Imap::Backup::Account::Folder do
       expect(@result).to eq(uid)
     end
 
-    context 'uid_validity' do
-      include_examples 'uid_validity'
+    it 'records uid_validity' do
+      expect(subject.uid_validity).to eq(uid_validity)
     end
   end
 end

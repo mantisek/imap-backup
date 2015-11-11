@@ -6,11 +6,12 @@ RSpec.describe 'restore', type: :feature do
 
   let(:post_restore_imap_data) { {version: 1, uids: [1, 2], uid_validity: 1} }
   let(:post_restore_imap_content) { post_restore_imap_data.to_json }
+  let(:folder) { 'INBOX' }
 
   before do
     start_email_server
-    backup_add_email 'INBOX', msg1
-    backup_add_email 'INBOX', msg2
+    backup_add_email folder, msg1
+    backup_add_email folder, msg2
 
     connection.restore
   end
@@ -21,7 +22,7 @@ RSpec.describe 'restore', type: :feature do
   end
 
   it 'restores' do
-    expect(server_messages.count).to eq(2)
+    expect(server_messages(folder).count).to eq(2)
   end
 
   it 'updates local uids' do
