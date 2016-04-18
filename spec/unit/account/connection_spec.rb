@@ -166,6 +166,19 @@ module Imap::Backup
       end
     end
 
+    context '#restore' do
+      it 'sets the uid_validity of the local folder'
+
+      context 'if the uid_validity has changed' do
+        it 'restores from the renamed backup'
+      end
+
+      context 'when a backed-up folder is not present on the server' do
+        it 'is created'
+      end
+
+    end
+
     context '#disconnect' do
       before { subject.disconnect }
 

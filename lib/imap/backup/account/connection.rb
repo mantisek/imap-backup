@@ -44,10 +44,17 @@ module Imap::Backup
     end
 
     def restore
-      each_folder do |folder, serializer|
-        new_name = serializer.set_uid_validity(folder.uid_validity)
-        if new_name
-          folder = Account::Folder.new(self, new_name)
+      local_folders do |serializer, folder|
+        exists = folder.exist?
+        if exists
+          new_name = serializer.set_uid_validity(folder.uid_validity)
+          if new_name
+            Imap::Backup.logger.debug "backup #{folder.name} renamed to #{new_name}"
+            folder = Account::Folder.new(self, new_name)
+          end
+        else
+          folder.create
+          serializer.force_uid_validity(folder.uid_validity)
         end
         Uploader.new(folder, serializer).run
       end
@@ -75,6 +82,17 @@ module Imap::Backup
         folder = Account::Folder.new(self, folder_info[:name])
         serializer = Serializer::Mbox.new(local_path, folder_info[:name])
         yield folder, serializer
+      end
+    end
+
+    def local_folders
+      glob = File.join(local_path, "**", "*.imap")
+      base = Pathname.new(local_path)
+      Pathname.glob(glob) do |path|
+        name = path.relative_path_from(base).to_s[0..-6]
+        serializer = Serializer::Mbox.new(local_path, name)
+        folder = Account::Folder.new(self, name)
+        yield serializer, folder
       end
     end
 
@@ -112,8 +130,9 @@ module Imap::Backup
     # return the hierarchy delimiter and the root name of the name given
     # in the reference.
     def provider_root
+      return @provider_root if @provider_root
       root_info = imap.list("", "")[0]
-      root_info.name
+      @provider_root = root_info.name
     end
   end
 end

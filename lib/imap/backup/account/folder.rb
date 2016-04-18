@@ -20,8 +20,22 @@ module Imap::Backup
       @uid_validity = nil
     end
 
+    # deprecated - use name
     def folder
       name
+    end
+
+    def exist?
+      examine
+      true
+    rescue Net::IMAP::NoResponseError => e
+      false
+    end
+
+    def create
+      if !exist?
+        imap.create(name)
+      end
     end
 
     def uids
@@ -43,7 +57,7 @@ module Imap::Backup
     end
 
     def append(message)
-      response = imap.append(folder, message.to_s, nil, message.date)
+      response = imap.append(name, message.to_s, nil, message.date)
       extract_uid(response)
     end
 
@@ -56,7 +70,7 @@ module Imap::Backup
     private
 
     def examine
-      response = imap.examine(name)
+      imap.examine(name)
       @uid_validity = imap.responses['UIDVALIDITY'][-1]
     end
 

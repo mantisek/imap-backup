@@ -26,7 +26,7 @@ Subject: #{subject}
   def backup_set_uid_validity(name, uid_validity)
     imap = load_or_create_imap(name)
     imap[:uid_validity] = uid_validity
-    save_imap imap
+    save_imap name, imap
   end
 
   def mbox_content(name)

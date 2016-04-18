@@ -70,6 +70,12 @@ module Imap::Backup
       write_imap_file
     end
 
+    def update_uid_validity(new)
+      do_load if !@loaded
+      @uid_validity = new
+      write_imap_file
+    end
+
     def uid_validity
       return @uid_validity if @loaded
 
@@ -239,22 +245,26 @@ module Imap::Backup
       store.update_uid(old, new)
     end
 
+    def force_uid_validity(value)
+      store.update_uid_validity value
+    end
+
     def set_uid_validity(value)
       existing_uid_validity = store.uid_validity
       case
       when existing_uid_validity.nil?
         store.uid_validity = value
         store.reset
+        nil
       when existing_uid_validity == value
         # NOOP
+        nil
       else
         digit = nil
         new_name = nil
-        puts "existing_uid_validity: #{existing_uid_validity}"
         loop do
           extra = digit ? ".#{digit}" : ""
           new_name = "#{folder}.#{existing_uid_validity}#{extra}"
-          puts "new_name: #{new_name}"
           test_store = Serializer::MboxStore.new(path, new_name)
           break if !test_store.exist?
           digit ||= 0

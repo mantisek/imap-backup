@@ -41,7 +41,7 @@ Subject: #{subject}
     imap.examine(folder)
   end
 
-  def uid_validity(folder)
+  def server_uid_validity(folder)
     examine(folder)
     imap.responses["UIDVALIDITY"][0]
   end

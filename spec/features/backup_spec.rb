@@ -35,7 +35,7 @@ RSpec.describe 'backup', type: :feature do
   end
 
   it 'records folder UID validity' do
-    expected = uid_validity(folder)
+    expected = server_uid_validity(folder)
     connection.run_backup
 
     imap = imap_parsed(folder)
@@ -51,7 +51,7 @@ RSpec.describe 'backup', type: :feature do
 
     before do
       connection.run_backup
-      @original_uid_validity = uid_validity(folder)
+      @original_uid_validity = server_uid_validity(folder)
       @original_uids = server_uids(folder)
       @moved_backup = "#{folder}.#{@original_uid_validity}"
       server_rename_folder folder, new_name

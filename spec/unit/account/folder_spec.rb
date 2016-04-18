@@ -13,6 +13,32 @@ describe Imap::Backup::Account::Folder do
 
   subject { described_class.new(connection, folder_name) }
 
+  context '#exist?' do
+    context 'when the folder exists on the server' do
+      it 'is true'
+    end
+
+    context 'when the folder does not exist on the server' do
+      it 'is false'
+    end
+  end
+
+  context '#create' do
+    context 'when the folder exists on the server' do
+      it 'does nothing'
+    end
+
+    context 'when the folder does not exist on the server' do
+      it 'is is created'
+    end
+  end
+
+  context '#uid_validity' do
+    context 'when the folder is not present on the server' do
+      it 'fails'
+    end
+  end
+
   context '#uids' do
     let(:uids) { %w(5678 123) }
 
