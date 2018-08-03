@@ -9,7 +9,7 @@ module Imap::Backup
     attr_reader :pathname
 
     def self.default_pathname
-      File.join(CONFIGURATION_DIRECTORY, "config.json")
+      File.join(CONFIGURATION_DIRECTORY, "/config/config.json")
     end
 
     def self.exist?(pathname = default_pathname)
