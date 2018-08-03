@@ -3,7 +3,7 @@ require "json"
 
 describe Imap::Backup::Configuration::Store do
   let(:directory) { "/base/path" }
-  let(:file_path) { File.join(directory, "/config.json") }
+  let(:file_path) { File.join(directory, "/config/config.json") }
   let(:file_exists) { true }
   let(:directory_exists) { true }
   let(:data) { {debug: debug, accounts: accounts} }
