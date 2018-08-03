@@ -72,7 +72,7 @@ module Imap::Backup
       account = {
         username: username,
         password: "",
-        local_path: File.join(config.path"../", username),
+        local_path: File.join(config.path += "../", username),
         folders: []
       }
     end
