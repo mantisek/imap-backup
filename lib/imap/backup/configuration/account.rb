@@ -36,11 +36,11 @@ module Imap::Backup
       menu.header = <<-EOT
 Account:
   email:    #{account[:username]}
+  password: #{masked_password}
   server:   #{account[:server]}
   path:     #{account[:local_path]}
   folders:  #{folders.map { |f| f[:name] }.join(', ')}
-  password: #{masked_password}
-      EOT
+       EOT
     end
 
     def modify_email(menu)
